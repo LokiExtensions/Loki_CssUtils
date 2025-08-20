@@ -1,0 +1,20 @@
+{
+  "name": "loki/magento2-css-utils",
+  "version": "1.0.0",
+  "description": "CSS class and style utilities for Magento 2 PHTML templates",
+  "type": "magento2-module",
+  "require": {
+    "magento/framework": "^103.0"
+  },
+  "license": [
+    "OSL-3.0"
+  ],
+  "autoload": {
+    "files": [
+      "registration.php"
+    ],
+    "psr-4": {
+      "Loki\\CssUtils\\": ""
+    }
+  }
+}
