@@ -43,3 +43,5 @@ Next, allow overriding CSS styles via XML layout. For instance, the following ma
     </arguments>
 </referenceBlock>
 ```
+
+See for more usage [https://loki-checkout.com/](https://loki-checkout.com/)
