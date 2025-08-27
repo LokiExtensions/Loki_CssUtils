@@ -64,7 +64,7 @@ class CssClass
 
         $cssName = $this->block->getCssName();
         if (empty($cssName)) {
-            $cssName = preg_replace('/([^0-9a-zA-Z]+)/', '-', (string)$nameInLayout);
+            $cssName = strtolower(preg_replace('/([^0-9a-zA-Z]+)/', '-', (string)$nameInLayout));
         }
 
         $css = 'scope-' . $scope . ' ' . trim($css);
