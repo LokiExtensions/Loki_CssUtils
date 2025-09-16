@@ -3,11 +3,12 @@
     <body>
         <referenceContainer name="before.body.end">
             <block name="loki.css-properties" template="Loki_CssUtils::stylesheet/css-properties.phtml"/>
+
             <!--
             <referenceBlock name="loki.css-properties">
                 <arguments>
                     <argument name="css_properties" xsi:type="array">
-                        <item name="display" xsi:type="string">flex</item>
+                        <item name="loki-custom-example" xsi:type="string">foobar</item>
                     </argument>
                 </arguments>
             </referenceBlock>
