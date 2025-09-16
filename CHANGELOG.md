@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.4] - 16 September 2025
+### Fixed
+- Modify example
+- Move loki.css-properties block to Loki_CssUtils
+
 ## [1.0.3] - 27 August 2025
 ### Fixed
 - Add CI files
