@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:View/Layout:etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="before.body.end">
+            <block name="loki.css-properties" template="Loki_CssUtils::stylesheet/css-properties.phtml"/>
+            <!--
+            <referenceBlock name="loki.css-properties">
+                <arguments>
+                    <argument name="css_properties" xsi:type="array">
+                        <item name="display" xsi:type="string">flex</item>
+                    </argument>
+                </arguments>
+            </referenceBlock>
+            -->
+        </referenceContainer>
+    </body>
+</page>

@@ -1,0 +1,15 @@
+<?php declare(strict_types=1);
+
+use Magento\Framework\View\Element\Template;
+
+/** @var Template $block */
+
+$cssProperties = (array)$block->getCssProperties();
+?>
+<style>
+    :root {
+    <?php foreach ($cssProperties as $cssPropertyName => $cssPropertyValue): ?>
+        --<?= $cssPropertyName; ?>: <?= $cssPropertyValue; ?>;
+    <?php endforeach; ?>
+    }
+</style>
