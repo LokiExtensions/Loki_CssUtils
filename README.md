@@ -1,6 +1,6 @@
 # Loki_CssUtils
 
-**This is part of the core packages for Loki Components, as is being used by the Loki Checkout suite. This module allows a Magento 2 template to call `$css()` and `$style()` to generate CSS classes and CSS styles, that are easily overwritten via XML layout and/or PHP parser classes - without template overrides.**
+**This Magento 2 module is part of the core packages for Loki Components, as is being used by the Loki Checkout, Loki Admin Components and Loki Theme for Luma. This module allows a Magento 2 template to call `$css()` and `$style()` to generate CSS classes and CSS styles, that are easily overwritten via XML layout and/or PHP parser classes - without template overrides.**
 
 ## Installation
 Install this package via composer:
