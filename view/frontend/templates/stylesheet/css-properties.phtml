@@ -11,7 +11,7 @@ $cssProperties = (array)$block->getCssProperties();
 <style>
     :root {
     <?php foreach ($cssProperties as $cssPropertyName => $cssPropertyValue): ?>
-        --<?= $cssPropertyName; ?>: <?= $cssPropertyValue; ?>;
+        --<?= $escaper->escapeHtml($cssPropertyName); ?>: <?= $escaper->escapeHtml($cssPropertyValue); ?>;
     <?php endforeach; ?>
     }
 </style>
