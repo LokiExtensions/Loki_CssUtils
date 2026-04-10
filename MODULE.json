@@ -3,5 +3,17 @@
     "modules": [],
     "components": [],
     "config": [],
-    "tests": []
+    "tests": [],
+    "module_name": "Loki_CssUtils",
+    "composer_name": "loki/magento2-css-utils",
+    "php_versions": [
+        "8.1",
+        "8.2",
+        "8.3",
+        "8.4"
+    ],
+    "skip_magento_versions": [],
+    "skip_css_utils": false,
+    "phpcs_severity": 10,
+    "phpstan_level": 1
 }
