@@ -5,6 +5,7 @@ namespace Loki\CssUtils\Util;
 use Magento\Framework\View\Element\AbstractBlock;
 use Magento\Framework\View\Element\Template;
 use Loki\CssUtils\Util\CssClassParser\CssClassParserInterface;
+use Magento\Framework\View\LayoutInterface;
 
 class CssClass
 {
@@ -14,6 +15,7 @@ class CssClass
      * @param CssClassParserInterface[] $cssClassParsers
      */
     public function __construct(
+        private LayoutInterface $layout,
         private readonly array $cssClassParsers = [],
     ) {
     }
@@ -40,16 +42,9 @@ class CssClass
         $blockCssClasses = (array)$this->block->getData('css_classes');
         $cssClasses = array_merge_recursive($cssClasses, $blockCssClasses);
 
-        // @todo: Beautify this
         $nameInLayout = $this->block->getNameInLayout();
-
-        $defaultsBlock = $this->block->getLayout()->getBlock('loki-components.css_classes');
-        if ($defaultsBlock instanceof AbstractBlock) {
-            $blockData = $defaultsBlock->getData($nameInLayout);
-            if (!empty($blockData)) {
-                $cssClasses = array_merge_recursive($cssClasses, $blockData);
-            }
-        }
+        $globalCssClasses = $this->getGlobalCssClasses($nameInLayout);
+        $cssClasses = array_merge_recursive($cssClasses, $globalCssClasses);
 
         $cssClasses[$scope] = $this->parse($cssClasses[$scope], $scope);
 
@@ -75,6 +70,16 @@ class CssClass
         return trim($css);
     }
 
+    private function getGlobalCssClasses(string $nameInLayout): array
+    {
+        $globalBlock = $this->layout->getBlock('loki-components.css_classes');
+        if ($globalBlock instanceof AbstractBlock) {
+            return (array)$globalBlock->getData($nameInLayout);
+        }
+
+        return [];
+    }
+
     private function getDefaultCssClasses(): array
     {
         $templateId = preg_replace('/^(.*)::/', '', (string)$this->block->getTemplate());
@@ -82,7 +87,7 @@ class CssClass
         $templateId = str_replace('/', '.', $templateId);
 
         $defaultBlockName = 'loki-components.defaults.' . $templateId;
-        $defaultBlock = $this->block->getLayout()->getBlock($defaultBlockName);
+        $defaultBlock = $this->layout->getBlock($defaultBlockName);
         if (false === $defaultBlock instanceof AbstractBlock) {
             return [];
         }
