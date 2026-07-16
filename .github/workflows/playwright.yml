@@ -1,15 +1,12 @@
 name: Playwright test
-
-on:
-  schedule:
-    - cron: '0 2 * * *'
-  workflow_dispatch:
+on: ['push', 'pull_request']
 
 jobs:
   playwright:
     runs-on: ubuntu-latest
     container:
       image: yireo/magento2playwright:2.4.8-p3
+
     env:
       GIT_DEPTH: 1
       GIT_STRATEGY: fetch
@@ -38,7 +35,9 @@ jobs:
       OPENSEARCH_JAVA_OPTS: "-Xms128m -Xmx128m"
       OPENSEARCH_INITIAL_ADMIN_PASSWORD: "admin"
       MAGENTO_VERSION: "2.4.8-p3"
-
+      DISABLE_INVENTORY: true
+      DISABLE_GRAPHQL: true
+      DISABLE_ADOBE: true
       GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
 
     services:
@@ -49,14 +48,24 @@ jobs:
           MYSQL_USER: magento2
           MYSQL_PASSWORD: magento2
           MYSQL_ROOT_PASSWORD: root
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=1s
+          --health-timeout=5s
+          --health-retries=3
 
       redis:
         image: redis:latest
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=1s
+          --health-timeout=5s
+          --health-retries=3
 
       opensearch:
         image: yireo/opensearch
         env:
-          OPENSEARCH_JAVA_OPTS: "-Xms128m -Xmx128m"
+          OPENSEARCH_JAVA_OPTS: "-Xms256m -Xmx256m"
           OPENSEARCH_INITIAL_ADMIN_PASSWORD: "admin"
 
     steps:
@@ -66,8 +75,16 @@ jobs:
           fetch-depth: 1
 
       - name: Detecting Playwright tests
+        run: test -d $GITHUB_WORKSPACE/Test/Playwright || echo "SKIP_JOB=true" >> $GITHUB_ENV || true
+
+      - name: Cleanup PHP
+        if: env.SKIP_JOB != 'true'
         run: |
-          test -d $GITHUB_WORKSPACE/Test/Playwright || echo "SKIP_JOB=true" >> $GITHUB_ENV
+          test -f /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini && rm -f /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini || true
+
+      - name: Configure Git safe directory
+        if: env.SKIP_JOB != 'true'
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
       - name: Setting up module variables
         if: env.SKIP_JOB != 'true'
@@ -75,51 +92,89 @@ jobs:
           echo COMPOSER_NAME=`jq '.name' composer.json -r` >> $GITHUB_ENV
           echo MAGENTO_MODULE=`jq '.module_name' MODULE.json -r` >> $GITHUB_ENV
 
-      - name: Configure Yireo GitLab
+      - name: Configure GitLab
         if: env.SKIP_JOB != 'true'
         run: |
           test -n "${{ secrets.GITLAB_TOKEN }}" || exit 0
           cd /tmp/magento
           composer config gitlab-domains gitlab.yireo.com
-          composer config --global --auth http-basic.gitlab.yireo.com yireo "${GITLAB_TOKEN}"
+          composer config --global --auth gitlab-token.gitlab.yireo.com "${{ secrets.GITLAB_TOKEN }}"
           composer config repositories.loki-third-party composer https://gitlab.yireo.com/api/v4/group/loki-third-party/-/packages/composer/packages.json
           composer config repositories.loki-checkout composer https://gitlab.yireo.com/api/v4/group/loki-checkout/-/packages/composer/packages.json
+          composer config repositories.loki-checkout-dev composer https://gitlab.yireo.com/api/v4/group/loki-checkout-dev/-/packages/composer/packages.json
 
-      - name: Prepare Magento Playwright setup
+      - name: Configure Magento Marketplace
         if: env.SKIP_JOB != 'true'
         run: |
-          cd "$GITHUB_WORKSPACE"
+          test -n "${{ secrets.MAGENTO_MARKETPLACE_PUBLIC_KEY }}" || exit 0
+          composer config --global --auth http-basic.repo.magento.com "${{ secrets.MAGENTO_MARKETPLACE_PUBLIC_KEY }}" "${{ secrets.MAGENTO_MARKETPLACE_PRIVATE_KEY }}"
+
+      - name: Configure composer
+        if: env.SKIP_JOB != 'true'
+        run: |
           cd /tmp/magento
+          composer config --global --auth github-oauth.github.com "${{ secrets.COMPOSER_GITHUB_TOKEN }}"
+          test -f $GITHUB_WORKSPACE/.github/workflows/composer-additional.sh && source $GITHUB_WORKSPACE/.github/workflows/composer-additional.sh || true
+          test -f $GITHUB_WORKSPACE/.github/workflows/composer-${MAGENTO_VERSION}.sh && source $GITHUB_WORKSPACE/.github/workflows/composer-${MAGENTO_VERSION}.sh || true
 
-          test -f "$GITHUB_WORKSPACE/.github/workflows/composer-additional.sh" && source "$GITHUB_WORKSPACE/.github/workflows/composer-additional.sh"
-          test -f "$GITHUB_WORKSPACE/.github/workflows/composer-${MAGENTO_VERSION}.sh" && source "$GITHUB_WORKSPACE/.github/workflows/composer-${MAGENTO_VERSION}.sh"
+      - name: Add module source
+        if: env.SKIP_JOB != 'true'
+        run: |
+          cp -R ${GITHUB_WORKSPACE} /tmp/magento/package-source
+          cd /tmp/magento
+          composer config repositories.local-source path /tmp/magento/package-source
+          composer require -n --prefer-source -- "${COMPOSER_NAME}:@dev" loki-checkout/magento2-core-cli:@dev loki-checkout/magento2-sample-data:@dev loki-checkout/magento2-functional-tests:@dev yireo/magento2-enable-module-sequence:@dev
 
-          composer config repositories.local-source path "$GITHUB_WORKSPACE"
-          composer require --prefer-source -- "${COMPOSER_NAME}:@dev" loki-checkout/magento2-core-cli:@dev loki-checkout/magento2-functional-tests:@dev yireo/magento2-enable-module-sequence
-
-          $GITHUB_WORKSPACE/.github/workflows/magento-install.sh
+      - name: Setup Magento
+        if: env.SKIP_JOB != 'true'
+        run: |
+          cd /tmp/magento
+          $GITHUB_WORKSPACE/.github/workflows/magento-install.sh || true
 
           bin/magento module:enable Yireo_EnableModuleSequence
-          bin/magento module:sequence LokiCheckout_FunctionalTests 
-          bin/magento module:sequence LokiCheckout_CoreCli
-          bin/magento module:sequence "${MAGENTO_MODULE}"
+          bin/magento module:sequence LokiCheckout_FunctionalTests LokiCheckout_SampleData LokiCheckout_CoreCli "${MAGENTO_MODULE}"
           bin/magento setup:upgrade
+          bin/magento loki-checkout:sample-data:add-product
           bin/magento loki-checkout:modules:dump
 
-          magerun2 config:store:set loki_functional_tests/general/token loki -n
-          cp -R /tmp/magento $GITHUB_WORKSPACE/magento
+          magerun2 config:store:set loki_checkout/functional_tests/token loki -n
 
-      - name: Prepare Magento Playwright setup
+      - name: Verify Magento installation
         if: env.SKIP_JOB != 'true'
-        uses: docker://mcr.microsoft.com/playwright:v1.57.0-noble
+        run: |
+          echo "Verifying Magento installation in workspace..."
+          test -f /tmp/magento/bin/magento || (echo "ERROR: Magento installation verification failed" && exit 1) || true
+          echo "Magento installation verified successfully"
+
+      - name: Run Playwright tests
+        if: env.SKIP_JOB != 'true'
+        run: |
+          echo "Navigating to Playwright test directory..."
+          cd /tmp/magento/vendor/loki-checkout/magento2-functional-tests/Test/Playwright/
+
+          echo "Installing npm dependencies..."
+          # @todo: Add package-json.lock and run npm ci
+          npm install
+          npx playwright install chromium
+
+          echo "Creating .env file..."
+          printf "TEST_URL=http://127.0.0.1:8888\nTEST_TOKEN=loki\n" > .env
+
+          echo "Running Playwright tests for project ${MAGENTO_MODULE}"
+          CI=true TEST_TOKEN=loki MAGENTO_ROOT=/tmp/magento npx playwright test --project=${MAGENTO_MODULE}
+
+      - name: Upload Playwright report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
         with:
-          args: >
-            bash -lc "
-              cd $GITHUB_WORKSPACE/magento/vendor/loki-checkout/magento2-functional-tests/Test/Playwright/
-              npm install
-              npx playwright install
-              touch .env
-              echo TEST_URL=$MAGENTO_BASE_URL >> .env
-              echo TEST_TOKEN=loki >> .env
-              npx playwright test --project=$MAGENTO_MODULE
-            "
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14
+
+      - name: Upload raw test results
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: test-results/
+          retention-days: 14

@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 16 July 2026
+### Added
+- Add new CSS class groups
+
+### Fixed
+- Add integration tests for current features
+
 ## [1.0.5] - 12 January 2026
 ### Fixed
 - Copy generic CI/CD files
