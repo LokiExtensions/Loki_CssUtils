@@ -223,7 +223,7 @@ class CssClassTest extends TestCase
                 'template' => 'example-template.phtml'
             ]
         ]);
-        
+
         $block->setNameInLayout($blockName);
         return $block;
     }

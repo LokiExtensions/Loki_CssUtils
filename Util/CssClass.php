@@ -136,9 +136,6 @@ class CssClass
         return $cssClassGroups;
     }
 
-    /**
-     * @deprecated This will be removed in the next major release.
-     */
     private function getTemplateId(): string
     {
         $templateId = preg_replace('/^(.*)::/', '', (string)$this->block->getTemplate());
