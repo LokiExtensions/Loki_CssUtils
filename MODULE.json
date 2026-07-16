@@ -3,7 +3,11 @@
     "modules": [],
     "components": [],
     "config": [],
-    "tests": [],
+    "tests": {
+        "unit": 0,
+        "integration": 1,
+        "functional": 0
+    },
     "module_name": "Loki_CssUtils",
     "composer_name": "loki/magento2-css-utils",
     "php_versions": [
