@@ -218,9 +218,13 @@ class CssClassTest extends TestCase
         }
 
         /** @var Template $block */
-        $block = $layout->createBlock(Template::class);
+        $block = $layout->createBlock(Template::class, '', [
+            'data' => [
+                'template' => 'example-template.phtml'
+            ]
+        ]);
+        
         $block->setNameInLayout($blockName);
-        $block->setTemplate('example-template.phtml');
         return $block;
     }
 
