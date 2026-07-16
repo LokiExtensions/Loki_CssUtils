@@ -6,123 +6,187 @@ use Loki\CssUtils\Util\CssClass;
 use Magento\Framework\App\ObjectManager;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\LayoutInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class CssClassTest extends TestCase
 {
-    public function testWithNoChanges(): void
-    {
+    #[DataProvider('getTestData')]
+    public function testWithNoChanges(
+        string $inputCssClass,
+        array $targetBlockCssClasses,
+        array $globalBlockCssClasses,
+        array $groupBlockCssClasses,
+        array $legacyGroupBlockCssClasses,
+        string $expectedCssClass
+    ): void {
+        $this->getTargetBlock()->setCssClasses($targetBlockCssClasses);
+        $this->getGlobalBlock()->setData($globalBlockCssClasses);
+        $this->getGroupBlock('example-template')->setData($groupBlockCssClasses);
+        $this->getLegacyGroupBlock('example-template')->setCssClasses($legacyGroupBlockCssClasses);
+
         $cssClass = $this->getCssClass();
-        $this->assertEquals('example scope-block input0', $cssClass('input0'));
+        $this->assertEquals($expectedCssClass, $cssClass($inputCssClass));
     }
 
-    public function testWithTargetBlockOverride(): void
+    public static function getTestData(): array
     {
-        $this->getTargetBlock()->setCssClasses([
-            'block' => [
-                'default' => 'target1'
-            ]
-        ]);
-
-        $cssClass = $this->getCssClass();
-        $this->assertEquals('example scope-block target1', $cssClass('input0'));
-    }
-
-
-    public function testWithGlobalBlockOverride(): void
-    {
-        $this->getTargetBlock()->setCssClasses([]);
-
-        $this->getGlobalBlock()->setData([
-            'example' => [
-                'block' => [
-                    'default' => 'default1'
-                ]
-            ]
-        ]);
-
-        $cssClass = $this->getCssClass();
-        $this->assertEquals('example scope-block default1', $cssClass('input0'));
-    }
-
-    public function testWithGlobalBlockExtendingTargetBlock(): void
-    {
-        $this->getTargetBlock()->setCssClasses([
-            'block' => [
-                'default' => 'target1'
-            ]
-        ]);
-
-        $this->getGlobalBlock()->setData([
-            'example' => [
-                'block' => [
-                    'extend' => 'default1'
-                ]
-            ]
-        ]);
-
-        $cssClass = $this->getCssClass();
-        $this->assertEquals('example scope-block target1 default1', $cssClass('input0'));
-    }
-
-    public function testWithGlobalBlockOverridingTargetBlock(): void
-    {
-        $this->getTargetBlock()->setCssClasses([
-            'block' => [
-                'default' => 'target1'
-            ]
-        ]);
-
-        $this->getGlobalBlock()->setData([
-            'example' => [
-                'block' => [
-                    'default' => 'default1'
-                ]
-            ]
-        ]);
-
-        $cssClass = $this->getCssClass();
-        $this->assertEquals('example scope-block default1', $cssClass('input0'));
-    }
-
-    public function testWithGlobalBlockExtendingAndTargetBlockExtending(): void
-    {
-        $this->getTargetBlock()->setCssClasses([
-            'block' => [
-                'extend1' => 'target1'
-            ]
-        ]);
-
-        $this->getGlobalBlock()->setData([
-            'example' => [
-                'block' => [
-                    'extend2' => 'default1'
-                ]
-            ]
-        ]);
-
-        $cssClass = $this->getCssClass();
-        $this->assertEquals('example scope-block input0 target1 default1', $cssClass('input0'));
-    }
-
-    public function testWithGlobalBlockOverridingTargetBlockExtending(): void
-    {
-        $this->getTargetBlock()->setCssClasses([
-            'block' => [
-                'extend1' => 'target1'
-            ]
-        ]);
-
-        $this->getGlobalBlock()->setData([
-            'example' => [
-                'block' => [
-                    'extend1' => 'default1'
-                ]
-            ]
-        ]);
-
-        $cssClass = $this->getCssClass();
-        $this->assertEquals('example scope-block input0 default1', $cssClass('input0'));
+        return [
+            [
+                'input0',
+                [],
+                [],
+                [],
+                [],
+                'example scope-block input0'
+            ], // No changes made
+            [
+                'input0',
+                [
+                    'block' => [
+                        'default' => 'target1'
+                    ]
+                ],
+                [],
+                [],
+                [],
+                'example scope-block target1'
+            ], // Simple per-block override
+            [
+                'input0',
+                [],
+                [
+                    'example' => [
+                        'block' => [
+                            'default' => 'default1'
+                        ]
+                    ]
+                ],
+                [],
+                [],
+                'example scope-block default1'
+            ], // Simple global override
+            [
+                'input0',
+                [
+                    'block' => [
+                        'default' => 'target1'
+                    ]
+                ],
+                [
+                    'example' => [
+                        'block' => [
+                            'extend' => 'default1'
+                        ]
+                    ]
+                ],
+                [],
+                [],
+                'example scope-block target1 default1'
+            ], // Per-block override with global extend
+            [
+                'input0',
+                [
+                    'block' => [
+                        'default' => 'target1'
+                    ]
+                ],
+                [
+                    'example' => [
+                        'block' => [
+                            'default' => 'default1'
+                        ]
+                    ]
+                ],
+                [],
+                [],
+                'example scope-block default1'
+            ], // Per-block override with global override
+            [
+                'input0',
+                [
+                    'block' => [
+                        'extend1' => 'target1'
+                    ]
+                ],
+                [
+                    'example' => [
+                        'block' => [
+                            'extend2' => 'default1'
+                        ]
+                    ]
+                ],
+                [],
+                [],
+                'example scope-block input0 target1 default1'
+            ], // Both per-block extend and global extend
+            [
+                'input0',
+                [
+                    'block' => [
+                        'extend1' => 'target1'
+                    ]
+                ],
+                [
+                    'example' => [
+                        'block' => [
+                            'extend1' => 'default1'
+                        ]
+                    ]
+                ],
+                [],
+                [],
+                'example scope-block input0 default1'
+            ], // Per-block extend and global override of that extend
+            [
+                'input0',
+                [
+                    'block' => [
+                        'extend1' => 'target1'
+                    ]
+                ],
+                [
+                    'example' => [
+                        'block' => [
+                            'extend2' => 'default1'
+                        ]
+                    ]
+                ],
+                [
+                    'block' => [
+                        'extend3' => 'group1'
+                    ]
+                ],
+                [],
+                'example scope-block input0 target1 default1 group1'
+            ], // Per-block extend and global extend and group extend
+            [
+                'input0',
+                [
+                    'block' => [
+                        'extend1' => 'target1'
+                    ]
+                ],
+                [
+                    'example' => [
+                        'block' => [
+                            'extend2' => 'default1'
+                        ]
+                    ]
+                ],
+                [
+                    'block' => [
+                        'extend3' => 'group1'
+                    ]
+                ],
+                [
+                    'block' => [
+                        'extend4' => 'legacy1'
+                    ]
+                ],
+                'example scope-block input0 target1 default1 legacy1 group1'
+            ], // Per-block extend and global extend and group extend and legacy extend
+        ];
     }
 
     private function getTargetBlock(): Template
@@ -135,6 +199,16 @@ class CssClassTest extends TestCase
         return $this->getBlock('loki-components.css_classes');
     }
 
+    private function getGroupBlock(string $groupId): Template
+    {
+        return $this->getBlock('loki-components.css_classes.'.$groupId);
+    }
+
+    private function getLegacyGroupBlock(string $groupId): Template
+    {
+        return $this->getBlock('loki-components.defaults.'.$groupId);
+    }
+
     private function getBlock(string $blockName): Template
     {
         $layout = $this->getLayout();
@@ -145,7 +219,7 @@ class CssClassTest extends TestCase
 
         $block = $layout->createBlock(Template::class);
         $block->setNameInLayout($blockName);
-        $block->setTemplate('dummy.phtml');
+        $block->setTemplate('example-template.phtml');
         return $block;
     }
 

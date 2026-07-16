@@ -29,22 +29,15 @@ class CssClass
 
     public function __invoke(string $defaultCss = '', string $scope = 'block'): string
     {
-        $cssClasses = $this->getDefaultCssClasses();
-        if (!isset($cssClasses[$scope])) {
-            $cssClasses[$scope] = [];
-        }
+        $cssClasses[$scope]['default'] = $defaultCss;
 
-        $defaultCss = trim($defaultCss);
-        if ($defaultCss !== '' && $defaultCss !== '0') {
-            $cssClasses[$scope]['default'] = $defaultCss;
-        }
-
-        $blockCssClasses = (array)$this->block->getData('css_classes');
-        $cssClasses = array_merge_recursive($cssClasses, $blockCssClasses);
-
-        $nameInLayout = $this->block->getNameInLayout();
-        $globalCssClasses = $this->getGlobalCssClasses($nameInLayout);
-        $cssClasses = array_merge_recursive($cssClasses, $globalCssClasses);
+        $cssClasses = array_merge_recursive(
+            $cssClasses,
+            $this->getPerBlockCssClasses(),
+            $this->getGlobalCssClasses(),
+            $this->getCssClassesFromLegacyBlockGroup(),
+            $this->getCssClassesFromBlockGroup(),
+        );
 
         $cssClasses[$scope] = $this->parse($cssClasses[$scope], $scope);
 
@@ -58,6 +51,7 @@ class CssClass
         }
 
         $cssName = $this->block->getCssName();
+        $nameInLayout = $this->block->getNameInLayout();
         if (empty($cssName)) {
             $cssName = strtolower(preg_replace('/([^0-9a-zA-Z]+)/', '-', (string)$nameInLayout));
         }
@@ -70,8 +64,14 @@ class CssClass
         return trim($css);
     }
 
-    private function getGlobalCssClasses(string $nameInLayout): array
+    private function getPerBlockCssClasses(): array
     {
+        return (array)$this->block->getData('css_classes');
+    }
+
+    private function getGlobalCssClasses(): array
+    {
+        $nameInLayout = $this->block->getNameInLayout();
         $globalBlock = $this->layout->getBlock('loki-components.css_classes');
         if ($globalBlock instanceof AbstractBlock) {
             return (array)$globalBlock->getData($nameInLayout);
@@ -80,19 +80,58 @@ class CssClass
         return [];
     }
 
-    private function getDefaultCssClasses(): array
+    private function getCssClassesFromBlockGroup(): array
+    {
+        $cssClasses = [];
+
+        $blockGroupIds = $this->getCssClassGroups();
+        foreach ($blockGroupIds as $blockGroupId) {
+            $block = $this->layout->getBlock('loki-components.css_classes.' . $blockGroupId);
+            if (false === $block instanceof AbstractBlock) {
+                continue;
+            }
+
+            $cssClasses = array_merge($cssClasses, (array)$block->getData());
+        }
+
+        return $cssClasses;
+    }
+
+    /**
+     * @deprecated The block `loki-components.defaults.XYZ` will be renamed to `loki-components.css_classes.group.XYZ` with the next major release.
+     */
+    private function getCssClassesFromLegacyBlockGroup(): array
+    {
+        $cssClasses = [];
+
+        $blockGroupIds = $this->getCssClassGroups();
+        foreach ($blockGroupIds as $blockGroupId) {
+            $block = $this->layout->getBlock('loki-components.defaults.' . $blockGroupId);
+            if (false === $block instanceof AbstractBlock) {
+                continue;
+            }
+
+            $cssClasses = array_merge($cssClasses, (array)$block->getData('css_classes'));
+        }
+
+        return $cssClasses;
+    }
+
+    private function getCssClassGroups(): array
+    {
+        $cssClassGroups = (array)$this->block->getCssClassGroups();
+        $cssClassGroups[] = $this->getTemplateId();
+        return $cssClassGroups;
+    }
+
+    /**
+     * @deprecated This will be removed in the next major release.
+     */
+    private function getTemplateId(): string
     {
         $templateId = preg_replace('/^(.*)::/', '', (string)$this->block->getTemplate());
         $templateId = preg_replace('/\.phtml/', '', $templateId);
-        $templateId = str_replace('/', '.', $templateId);
-
-        $defaultBlockName = 'loki-components.defaults.' . $templateId;
-        $defaultBlock = $this->layout->getBlock($defaultBlockName);
-        if (false === $defaultBlock instanceof AbstractBlock) {
-            return [];
-        }
-
-        return (array)$defaultBlock->getData('css_classes');
+        return str_replace('/', '.', $templateId);
     }
 
     private function parse(array $cssClasses, string $scope): array
