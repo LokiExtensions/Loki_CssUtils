@@ -91,7 +91,13 @@ class CssClass
                 continue;
             }
 
-            $cssClasses = array_merge($cssClasses, (array)$block->getData());
+            foreach ((array) $block->getData() as $key => $value) {
+                if (empty($value)) {
+                    continue;
+                }
+
+                $cssClasses[$key] = $value;
+            }
         }
 
         return $cssClasses;
@@ -111,7 +117,13 @@ class CssClass
                 continue;
             }
 
-            $cssClasses = array_merge($cssClasses, (array)$block->getData('css_classes'));
+            foreach ((array) $block->getData('css_classes') as $key => $value) {
+                if (empty($value)) {
+                    continue;
+                }
+
+                $cssClasses[$key] = $value;
+            }
         }
 
         return $cssClasses;
