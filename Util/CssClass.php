@@ -47,6 +47,10 @@ class CssClass
                 $cssClassValue = array_pop($cssClassValue);
             }
 
+            if (!is_string($cssClassValue)) {
+                continue;
+            }
+
             $css .= ' ' . $cssClassValue;
         }
 
@@ -57,8 +61,8 @@ class CssClass
         }
 
         $css = 'scope-' . $scope . ' ' . trim($css);
-        $scopeClass = $scope === 'block' ? $cssName : $cssName . '__' . $scope;
 
+        $scopeClass = $scope === 'block' ? $cssName : $cssName . '__' . $scope;
         $css = $scopeClass . ' ' . trim($css);
 
         return trim($css);
@@ -92,7 +96,7 @@ class CssClass
             }
 
             foreach ((array) $block->getData() as $key => $value) {
-                if (empty($value)) {
+                if (!is_array($value) || empty($value)) {
                     continue;
                 }
 
@@ -104,7 +108,7 @@ class CssClass
     }
 
     /**
-     * @deprecated The block `loki-components.defaults.XYZ` will be renamed to `loki-components.css_classes.group.XYZ` with the next major release.
+     * @deprecated Block `loki-components.defaults.XYZ` will be renamed to `loki-components.css_classes.group.XYZ`
      */
     private function getCssClassesFromLegacyBlockGroup(): array
     {
@@ -118,7 +122,7 @@ class CssClass
             }
 
             foreach ((array) $block->getData('css_classes') as $key => $value) {
-                if (empty($value)) {
+                if (!is_array($value) || empty($value)) {
                     continue;
                 }
 
@@ -145,6 +149,12 @@ class CssClass
 
     private function parse(array $cssClasses, string $scope): array
     {
+        if (array_key_exists('_force', $cssClasses)) {
+            $cssClasses = [
+                'default' => $cssClasses['_force']
+            ];
+        }
+
         foreach ($this->cssClassParsers as $cssClassParser) {
             if (false === $cssClassParser instanceof CssClassParserInterface) {
                 continue;
