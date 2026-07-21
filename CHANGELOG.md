@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.1] - 21 July 2026
+### Fixed
+- Add `_force` scope to allow overriding everything
+- Finalize new tests for legacy, global, group and force
+
 ## [1.1.0] - 16 July 2026
 ### Added
 - Add new CSS class groups
