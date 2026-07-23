@@ -70,7 +70,20 @@ class CssClass
 
     private function getPerBlockCssClasses(): array
     {
-        return (array)$this->block->getData('css_classes');
+        $cssClasses = $this->block->getData('css_classes');
+        if (is_array($cssClasses)) {
+            return $cssClasses;
+        }
+
+        if (is_string($cssClasses)) {
+            return [
+                'block' => [
+                    'default' => $cssClasses
+                ]
+            ];
+        }
+
+        return [];
     }
 
     private function getGlobalCssClasses(): array
