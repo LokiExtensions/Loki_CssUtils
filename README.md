@@ -96,5 +96,16 @@ And:
 </block>
 ```
 
+## Comparison with Hyva `$block->getCssClasses()` approach
+From Hyva 1.4, templates started to include block methods like `getCssClasses()` which resembles the approach of the Loki CSS Utils. Here is a comparison between the two:
+
+The Hyva `getCssClasses()` method simply returns string, which is defined as such in the XML layout. You either use the XML layout to define a specific CSS class, or you use the template-based value. But not both. The Loki `$css()` allows you to both extend and override default values (via the `scope`).
+
+The Hyva `getCssClasses()` method by default just relies upon input from the XML layout. You could write an interceptor or observer to modify the values on the fly, but there is no guidance on how to do this. Yet, the `$css()` uses a construction of CSS Class parsers (implementing `\Loki\CssUtils\Util\CssClassParser\CssClassParserInterface`) which easily allows for more advanced scenarios like sorting classes or merging them (`text-2xl` plus `text-xl` becomes `text-xl`).
+
+The Hyva approach only allows the block itself to be the source of definitions. Loki adds the option for using a global block and block groups, so that multiple blocks (and templates) are targeted at once. And each of those generic blocks again allows for extending and/or overriding existing values.
+
+As we see it, the basics of both Hyva approach and Loki approach are the same. Loki simply took things much further.
+
 ## Documentation
 See for more usage [https://loki-checkout.com/](https://loki-checkout.com/)
