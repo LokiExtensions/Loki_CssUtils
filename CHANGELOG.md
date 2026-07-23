@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.2] - 23 July 2026
+### Fixed
+- Allow for compatibility of Hyva `css_class` flat string property
+
 ## [1.1.1] - 21 July 2026
 ### Fixed
 - Add `_force` scope to allow overriding everything
