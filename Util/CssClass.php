@@ -60,12 +60,12 @@ class CssClass
             $cssName = strtolower(preg_replace('/([^0-9a-zA-Z]+)/', '-', (string)$nameInLayout));
         }
 
-        $css = 'scope-' . $scope . ' ' . trim($css);
+        $css = 'scope-' . $scope . ' ' . trim($css, " \f\n\r\t\v\x00");
 
         $scopeClass = $scope === 'block' ? $cssName : $cssName . '__' . $scope;
-        $css = $scopeClass . ' ' . trim($css);
+        $css = $scopeClass . ' ' . trim($css, " \f\n\r\t\v\x00");
 
-        return trim($css);
+        return trim($css, " \f\n\r\t\v\x00");
     }
 
     private function getPerBlockCssClasses(): array

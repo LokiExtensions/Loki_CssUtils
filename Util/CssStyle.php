@@ -34,7 +34,7 @@ class CssStyle
             $css .= $cssStyleName . ':' . $cssStyleValue . ';';
         }
 
-        return trim($css);
+        return trim($css, " \f\n\r\t\v\x00");
     }
 
     private function parse(array $cssStyles): array
