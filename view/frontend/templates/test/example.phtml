@@ -1,0 +1,22 @@
+<?php declare(strict_types=1);
+
+use Loki\CssUtils\Util\CssClass;
+use Loki\CssUtils\Util\CssStyle;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+/** @var CssClass $css */
+/** @var CssStyle $style */
+?>
+<div id="loki-css-utils-test"
+     class="<?= $escaper->escapeHtml($css('loki-test-default')) ?>"
+     style="<?= $escaper->escapeHtml($style()) ?>">
+    <h3 id="loki-css-utils-test-heading" class="<?= $escaper->escapeHtml($css('loki-test-heading', 'heading')) ?>">
+        Loki CssUtils test
+    </h3>
+    <p id="loki-css-utils-test-forced" class="<?= $escaper->escapeHtml($css('loki-test-forced-default', 'forced')) ?>">
+        Forced
+    </p>
+</div>

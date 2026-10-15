@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<!-- Test-only layout handle, used by the Playwright tests via the Loki_FunctionalTests test page -->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="content">
+            <block name="loki-components.css_classes">
+                <arguments>
+                    <argument name="loki-css-utils.test" xsi:type="array">
+                        <item name="block" xsi:type="array">
+                            <item name="extend-global" xsi:type="string">loki-test-global</item>
+                        </item>
+                    </argument>
+                </arguments>
+            </block>
+
+            <block name="loki-components.css_classes.loki-css-utils-test-group">
+                <arguments>
+                    <argument name="heading" xsi:type="array">
+                        <item name="extend-group" xsi:type="string">loki-test-group</item>
+                    </argument>
+                </arguments>
+            </block>
+
+            <block name="loki-components.css_classes.test.example">
+                <arguments>
+                    <argument name="block" xsi:type="array">
+                        <item name="extend-template-group" xsi:type="string">loki-test-template-group</item>
+                    </argument>
+                </arguments>
+            </block>
+
+            <block name="loki-css-utils.test" template="Loki_CssUtils::test/example.phtml">
+                <arguments>
+                    <argument name="css_classes" xsi:type="array">
+                        <item name="block" xsi:type="array">
+                            <item name="extend-local" xsi:type="string">loki-test-local</item>
+                        </item>
+                        <item name="heading" xsi:type="array">
+                            <item name="default" xsi:type="string">loki-test-heading-override</item>
+                        </item>
+                        <item name="forced" xsi:type="array">
+                            <item name="_force" xsi:type="string">loki-test-forced</item>
+                        </item>
+                    </argument>
+                    <argument name="css_class_groups" xsi:type="array">
+                        <item name="loki-css-utils-test-group" xsi:type="string">loki-css-utils-test-group</item>
+                    </argument>
+                    <argument name="css_styles" xsi:type="array">
+                        <item name="color" xsi:type="string">rgb(255, 0, 0)</item>
+                        <item name="margin-top" xsi:type="string">7px</item>
+                    </argument>
+                </arguments>
+            </block>
+        </referenceContainer>
+
+        <referenceBlock name="loki.css-properties">
+            <arguments>
+                <argument name="css_properties" xsi:type="array">
+                    <item name="loki-css-utils-test" xsi:type="string">42px</item>
+                </argument>
+            </arguments>
+        </referenceBlock>
+    </body>
+</page>
