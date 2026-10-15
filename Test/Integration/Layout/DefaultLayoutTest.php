@@ -31,9 +31,11 @@ class DefaultLayoutTest extends TestCase
         $block = $layout->getBlock('loki-css-utils.test');
         $this->assertInstanceOf(Template::class, $block);
         $this->assertSame('Loki_CssUtils::test/example.phtml', $block->getTemplate());
+        $cssPropertiesBlock = $layout->getBlock('loki.css-properties');
+        $this->assertInstanceOf(Template::class, $cssPropertiesBlock);
         $this->assertSame(
             ['loki-css-utils-test' => '42px'],
-            $layout->getBlock('loki.css-properties')->getCssProperties()
+            $cssPropertiesBlock->getData('css_properties')
         );
 
         $html = $block->toHtml();
