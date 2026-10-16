@@ -54,6 +54,24 @@ class DefaultLayoutTest extends TestCase
         $this->assertStringContainsString('style="color:rgb(255, 0, 0);margin-top:7px;"', $html);
     }
 
+    public function testLayoutFilesUseValidSchemaLocation(): void
+    {
+        $layoutFiles = glob(dirname(__DIR__, 3) . '/view/frontend/layout/*.xml');
+        $this->assertNotEmpty($layoutFiles);
+
+        foreach ($layoutFiles as $layoutFile) {
+            $xml = simplexml_load_file($layoutFile);
+            $schemaLocation = (string)$xml->attributes('http://www.w3.org/2001/XMLSchema-instance')
+                ->noNamespaceSchemaLocation;
+
+            $this->assertSame(
+                'urn:magento:framework:View/Layout/etc/page_configuration.xsd',
+                $schemaLocation,
+                basename($layoutFile)
+            );
+        }
+    }
+
     private function loadLayout(array $handles): LayoutInterface
     {
         $objectManager = ObjectManager::getInstance();
