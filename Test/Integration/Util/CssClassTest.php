@@ -261,6 +261,42 @@ class CssClassTest extends TestCase
         $this->assertSame('example scope-block input0 legacy-b1', $cssClass('input0'));
     }
 
+    #[DataProvider('getNonStringValueData')]
+    public function testNonStringValuesAreIgnored(mixed $value): void
+    {
+        $layout = $this->createLayout();
+        $block = $this->createBlock($layout, 'example', [
+            'css_classes' => ['block' => ['extend1' => $value]],
+        ]);
+
+        $cssClass = (new CssClass($layout))->setBlock($block);
+        $this->assertSame('example scope-block input0', $cssClass('input0'));
+    }
+
+    public static function getNonStringValueData(): array
+    {
+        return [
+            [null],
+            [true],
+            [false],
+            [42],
+        ];
+    }
+
+    public function testNullValueRemovesExtendedCssClass(): void
+    {
+        $layout = $this->createLayout();
+        $block = $this->createBlock($layout, 'example', [
+            'css_classes' => ['block' => ['extend1' => 'target1']],
+        ]);
+        $this->createBlock($layout, 'loki-components.css_classes', [
+            'example' => ['block' => ['extend1' => null]],
+        ]);
+
+        $cssClass = (new CssClass($layout))->setBlock($block);
+        $this->assertSame('example scope-block input0', $cssClass('input0'));
+    }
+
     #[DataProvider('getTemplateIdData')]
     public function testCssClassGroupFromTemplateId(string $template, string $groupId): void
     {

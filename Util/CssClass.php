@@ -43,7 +43,7 @@ class CssClass
 
         $css = '';
         foreach ($cssClasses[$scope] as $cssClassValue) {
-            if (!is_string($cssClassValue)) {
+            if (is_array($cssClassValue)) {
                 $cssClassValue = array_pop($cssClassValue);
             }
 
