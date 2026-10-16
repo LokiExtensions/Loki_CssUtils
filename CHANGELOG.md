@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Fixed
+- Merge multiple CSS class groups for the same scope, instead of the last group dropping the CSS classes of earlier groups
+- Prevent `TypeError` when a CSS class value is `null`, a boolean or a number
+- Support `$defaultCss` and `$scope` arguments in `$style()` and skip non-scalar CSS style values
+- Output valid CSS custom properties (no HTML-escaping of quotes inside `<style>`), while sanitizing names and values
+- Fix XSD location in `default.xml`
 - Add unit tests for `CssStyle`
 - Add integration tests for scopes, CSS class groups, parsers, observer, layout and CSS properties
 - Add Playwright tests for Luma and Hyva via test-only layout handle `loki_css_utils_test`
