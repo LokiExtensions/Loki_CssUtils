@@ -23,10 +23,58 @@ class CssStyleTest extends TestCase
         $this->assertSame('color:red;margin:0;', $cssStyle());
     }
 
-    public function testDefaultCssAndScopeAreIgnored(): void
+    public function testDefaultCssIsUsed(): void
+    {
+        $cssStyle = (new CssStyle())->setBlock($this->getBlock(null));
+        $this->assertSame('padding:1px;margin:0;', $cssStyle('padding: 1px; margin:0'));
+    }
+
+    public function testDefaultCssIsExtendedAndOverridden(): void
+    {
+        $cssStyle = (new CssStyle())->setBlock($this->getBlock(['color' => 'red', 'padding' => '2px']));
+        $this->assertSame('padding:2px;margin:0;color:red;', $cssStyle('padding:1px;margin:0;'));
+    }
+
+    public function testDefaultCssWithSemicolonInsideParentheses(): void
+    {
+        $cssStyle = (new CssStyle())->setBlock($this->getBlock(null));
+        $this->assertSame(
+            'background:url(data:image/png;base64,AAAA);color:red;',
+            $cssStyle('background:url(data:image/png;base64,AAAA);color:red')
+        );
+    }
+
+    public function testFlatCssStylesOnlyApplyToBlockScope(): void
     {
         $cssStyle = (new CssStyle())->setBlock($this->getBlock(['color' => 'red']));
-        $this->assertSame('color:red;', $cssStyle('padding:1px;', 'heading'));
+        $this->assertSame('color:red;', $cssStyle());
+        $this->assertSame('padding:1px;', $cssStyle('padding:1px', 'heading'));
+    }
+
+    public function testScopedCssStyles(): void
+    {
+        $cssStyle = (new CssStyle())->setBlock($this->getBlock([
+            'color' => 'red',
+            'block' => ['margin' => '0'],
+            'heading' => ['color' => 'blue'],
+        ]));
+
+        $this->assertSame('color:red;margin:0;', $cssStyle());
+        $this->assertSame('color:blue;', $cssStyle('', 'heading'));
+        $this->assertSame('', $cssStyle('', 'other'));
+    }
+
+    public function testNonScalarValuesAreSkippedAndNullRemovesDefault(): void
+    {
+        $cssStyle = (new CssStyle())->setBlock($this->getBlock([
+            'block' => [
+                'color' => null,
+                'margin' => ['invalid'],
+                'z-index' => 10,
+            ],
+        ]));
+
+        $this->assertSame('padding:1px;z-index:10;', $cssStyle('color:red;padding:1px'));
     }
 
     public function testParserModifiesStyles(): void

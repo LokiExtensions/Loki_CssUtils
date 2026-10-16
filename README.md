@@ -104,6 +104,28 @@ And:
 </block>
 ```
 
+## CSS styles
+Similar to `$css()`, a template can call `$style()` to generate an inline `style` attribute. Default styles passed to `$style()` are extended or overridden by the `css_styles` argument. Flat values apply to the `block` scope, nested arrays define styles for a specific scope:
+
+```phtml
+<div style="<?= $escaper->escapeHtmlAttr($style('margin:0')) ?>">
+    <h3 style="<?= $escaper->escapeHtmlAttr($style('', 'heading')) ?>">Hello World</h3>
+</div>
+```
+
+```xml
+<referenceBlock name="example">
+    <arguments>
+        <argument name="css_styles" xsi:type="array">
+            <item name="margin" xsi:type="string">1rem</item>
+            <item name="heading" xsi:type="array">
+                <item name="color" xsi:type="string">red</item>
+            </item>
+        </argument>
+    </arguments>
+</referenceBlock>
+```
+
 ## Comparison with Hyva `$block->getCssClasses()` approach
 From Hyva 1.4, templates started to include block methods like `getCssClasses()` which resembles the approach of the Loki CSS Utils. Here is a comparison between the two:
 
