@@ -189,6 +189,78 @@ class CssClassTest extends TestCase
         $this->assertSame('example__heading scope-heading input0 group-b1', $cssClass('input0', 'heading'));
     }
 
+    public function testMultipleCssClassGroupsExtendSameScope(): void
+    {
+        $layout = $this->createLayout();
+        $block = $this->createBlock($layout, 'example', [
+            'css_class_groups' => ['group-a', 'group-b'],
+        ]);
+
+        $this->createBlock($layout, 'loki-components.css_classes.group-a', [
+            'block' => ['extend-a' => 'group-a1'],
+        ]);
+        $this->createBlock($layout, 'loki-components.css_classes.group-b', [
+            'block' => ['extend-b' => 'group-b1'],
+        ]);
+
+        $cssClass = (new CssClass($layout))->setBlock($block);
+        $this->assertSame('example scope-block input0 group-a1 group-b1', $cssClass('input0'));
+    }
+
+    public function testMultipleCssClassGroupsOverrideSameKey(): void
+    {
+        $layout = $this->createLayout();
+        $block = $this->createBlock($layout, 'example', [
+            'css_class_groups' => ['group-a', 'group-b'],
+        ]);
+
+        $this->createBlock($layout, 'loki-components.css_classes.group-a', [
+            'block' => ['extend-x' => 'group-a1'],
+        ]);
+        $this->createBlock($layout, 'loki-components.css_classes.group-b', [
+            'block' => ['extend-x' => 'group-b1'],
+        ]);
+
+        $cssClass = (new CssClass($layout))->setBlock($block);
+        $this->assertSame('example scope-block input0 group-b1', $cssClass('input0'));
+    }
+
+    public function testMultipleLegacyCssClassGroupsExtendSameScope(): void
+    {
+        $layout = $this->createLayout();
+        $block = $this->createBlock($layout, 'example', [
+            'css_class_groups' => ['group-a', 'group-b'],
+        ]);
+
+        $this->createBlock($layout, 'loki-components.defaults.group-a', [
+            'css_classes' => ['block' => ['extend-a' => 'legacy-a1']],
+        ]);
+        $this->createBlock($layout, 'loki-components.defaults.group-b', [
+            'css_classes' => ['block' => ['extend-b' => 'legacy-b1']],
+        ]);
+
+        $cssClass = (new CssClass($layout))->setBlock($block);
+        $this->assertSame('example scope-block input0 legacy-a1 legacy-b1', $cssClass('input0'));
+    }
+
+    public function testMultipleLegacyCssClassGroupsOverrideSameKey(): void
+    {
+        $layout = $this->createLayout();
+        $block = $this->createBlock($layout, 'example', [
+            'css_class_groups' => ['group-a', 'group-b'],
+        ]);
+
+        $this->createBlock($layout, 'loki-components.defaults.group-a', [
+            'css_classes' => ['block' => ['extend-x' => 'legacy-a1']],
+        ]);
+        $this->createBlock($layout, 'loki-components.defaults.group-b', [
+            'css_classes' => ['block' => ['extend-x' => 'legacy-b1']],
+        ]);
+
+        $cssClass = (new CssClass($layout))->setBlock($block);
+        $this->assertSame('example scope-block input0 legacy-b1', $cssClass('input0'));
+    }
+
     #[DataProvider('getTemplateIdData')]
     public function testCssClassGroupFromTemplateId(string $template, string $groupId): void
     {

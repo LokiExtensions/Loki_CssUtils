@@ -113,7 +113,7 @@ class CssClass
                     continue;
                 }
 
-                $cssClasses[$key] = $value;
+                $cssClasses = array_merge_recursive($cssClasses, [$key => $value]);
             }
         }
 
@@ -139,7 +139,7 @@ class CssClass
                     continue;
                 }
 
-                $cssClasses[$key] = $value;
+                $cssClasses = array_merge_recursive($cssClasses, [$key => $value]);
             }
         }
 
