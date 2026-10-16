@@ -6,12 +6,26 @@ use Magento\Framework\View\Element\Template;
 
 /** @var Template $block */
 
-$cssProperties = (array)$block->getCssProperties();
+$cssProperties = [];
+foreach ((array)$block->getCssProperties() as $cssPropertyName => $cssPropertyValue) {
+    if (!is_string($cssPropertyValue) && !is_int($cssPropertyValue) && !is_float($cssPropertyValue)) {
+        continue;
+    }
+
+    // Content of a <style> element is raw text, so HTML-escaping would break CSS values like quotes
+    $cssPropertyName = preg_replace('/[^a-zA-Z0-9_-]/', '', (string)$cssPropertyName);
+    $cssPropertyValue = trim(str_replace(['<', '>', '{', '}'], '', (string)$cssPropertyValue));
+    if ($cssPropertyName === '' || $cssPropertyValue === '') {
+        continue;
+    }
+
+    $cssProperties[$cssPropertyName] = $cssPropertyValue;
+}
 ?>
 <style>
     :root {
     <?php foreach ($cssProperties as $cssPropertyName => $cssPropertyValue): ?>
-        --<?= $escaper->escapeHtml($cssPropertyName); ?>: <?= $escaper->escapeHtml($cssPropertyValue); ?>;
+        --<?= /* @noEscape */ $cssPropertyName ?>: <?= /* @noEscape */ $cssPropertyValue ?>;
     <?php endforeach; ?>
     }
 </style>
