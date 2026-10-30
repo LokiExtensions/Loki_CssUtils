@@ -5,15 +5,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.1.3] - 30 October 2026
 ### Fixed
-- Merge multiple CSS class groups for the same scope, instead of the last group dropping the CSS classes of earlier groups
-- Prevent `TypeError` when a CSS class value is `null`, a boolean or a number
-- Support `$defaultCss` and `$scope` arguments in `$style()` and skip non-scalar CSS style values
+- Use valid XSD location in default.xml
 - Output valid CSS custom properties (no HTML-escaping of quotes inside `<style>`), while sanitizing names and values
-- Fix XSD location in `default.xml`
-- Add unit tests for `CssStyle`
-- Add integration tests for scopes, CSS class groups, parsers, observer, layout and CSS properties
-- Add Playwright tests for Luma and Hyva via test-only layout handle `loki_css_utils_test`
+- Support `$defaultCss` and `$scope` arguments in `$style()` and skip non-scalar CSS style values
+- Prevent `TypeError` when a CSS class value is `null`, a boolean or a number
+- Merge multiple CSS class groups for the same scope, instead of the last group dropping the CSS classes of earlier groups
+- Add `trim()` its second argument for PHP 8.6 compatibility
 
 ## [1.1.2] - 23 July 2026
 ### Fixed
