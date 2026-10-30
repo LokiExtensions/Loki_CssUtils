@@ -80,8 +80,8 @@ class CssStyle
                 continue;
             }
 
-            $name = trim($parts[0]);
-            $value = trim($parts[1]);
+            $name = trim($parts[0], " \f\n\r\t\v\x00");
+            $value = trim($parts[1], " \f\n\r\t\v\x00");
             if ($name === '' || $value === '') {
                 continue;
             }

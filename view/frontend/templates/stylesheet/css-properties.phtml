@@ -14,7 +14,7 @@ foreach ((array)$block->getCssProperties() as $cssPropertyName => $cssPropertyVa
 
     // Content of a <style> element is raw text, so HTML-escaping would break CSS values like quotes
     $cssPropertyName = preg_replace('/[^a-zA-Z0-9_-]/', '', (string)$cssPropertyName);
-    $cssPropertyValue = trim(str_replace(['<', '>', '{', '}'], '', (string)$cssPropertyValue));
+    $cssPropertyValue = trim(str_replace(['<', '>', '{', '}'], '', (string)$cssPropertyValue), " \f\n\r\t\v\x00");
     if ($cssPropertyName === '' || $cssPropertyValue === '') {
         continue;
     }
