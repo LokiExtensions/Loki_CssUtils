@@ -4,9 +4,9 @@
     "components": [],
     "config": [],
     "tests": {
-        "unit": 1,
-        "integration": 5,
-        "functional": 3
+        "unit": 10,
+        "integration": 32,
+        "functional": 6
     },
     "module_name": "Loki_CssUtils",
     "composer_name": "loki/magento2-css-utils",
