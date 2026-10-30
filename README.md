@@ -1,10 +1,14 @@
 # Loki_CssUtils
 
 <!-- badges.specs.start -->
+<div class="github-specs-badges">
+
 ![Magento version](https://img.shields.io/badge/Magento-2.4.6%20%7C%202.4.9-orange)
 ![PHP version](https://img.shields.io/badge/PHP-8.2%E2%80%938.5-777BB4)
 ![License](https://img.shields.io/badge/License-OSL--3.0-blue)
 ![Latest Version](https://img.shields.io/packagist/v/loki/magento2-css-utils)
+
+</div>
 <!-- badges.specs.end -->
 
 
@@ -143,9 +147,13 @@ See for more usage [https://loki-checkout.com/](https://loki-checkout.com/)
 ## Current status
 
 <!-- badges.test.start -->
+<div class="github-pipeline-badges">
+
 ![Static Tests](https://img.shields.io/github/actions/workflow/status/LokiExtensions/Loki_CssUtils/static-tests.yml?label=static-tests)
 ![Unit Tests](https://img.shields.io/github/actions/workflow/status/LokiExtensions/Loki_CssUtils/unit-tests.yml?label=unit-tests)
 ![Integration Tests](https://img.shields.io/github/actions/workflow/status/LokiExtensions/Loki_CssUtils/integration-tests.yml?label=integration-tests)
 ![Playwright](https://img.shields.io/github/actions/workflow/status/LokiExtensions/Loki_CssUtils/playwright.yml?label=playwright)
 ![DI Compilation](https://img.shields.io/github/actions/workflow/status/LokiExtensions/Loki_CssUtils/compile.yml?label=compile)
+
+</div>
 <!-- badges.test.end -->
